@@ -61,8 +61,27 @@
           <p class="setting-description">当前标题: {{ currentTitle || '未设置' }}</p>
         </div>
 
-        <!-- 默认搜索引擎设置 -->
+        <!-- 搜索功能开关 -->
         <div class="setting-group">
+          <label>搜索功能:</label>
+          <div class="search-toggle-group">
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                v-model="searchEnabled"
+                @change="saveSearchEnabledToGitHub"
+                :disabled="searchEnabledSaving"
+              >
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-status">{{ searchEnabled ? '已启用' : '已禁用' }}</span>
+            <span v-if="searchEnabledSaving" class="saving-indicator">保存中...</span>
+          </div>
+          <p class="setting-description">{{ searchEnabled ? '前台页面将显示搜索栏' : '前台页面将隐藏搜索栏' }}</p>
+        </div>
+
+        <!-- 默认搜索引擎设置 -->
+        <div class="setting-group" v-if="searchEnabled">
           <label>默认搜索引擎:</label>
           <div class="search-engine-input-group">
             <select v-model="searchEngine" class="search-engine-select">
@@ -303,6 +322,11 @@ const searchEngine = ref('bing')
 const currentSearchEngine = ref('bing')
 const searchEngineSaving = ref(false)
 
+// 搜索功能开关
+const searchEnabled = ref(true)
+const currentSearchEnabled = ref(true)
+const searchEnabledSaving = ref(false)
+
 // 搜索引擎选项
 const searchEngineOptions = [
   { value: 'google', label: 'Google' },
@@ -382,12 +406,18 @@ const loadWebsiteSettings = async () => {
     // 加载搜索引擎设置
     currentSearchEngine.value = data.search || 'bing'
     searchEngine.value = currentSearchEngine.value
+
+    // 加载搜索功能开关设置
+    currentSearchEnabled.value = data.searchEnabled !== false
+    searchEnabled.value = currentSearchEnabled.value
   } catch (error) {
     console.error('加载网站设置失败:', error)
     currentTitle.value = '猫猫导航'
     websiteTitle.value = '猫猫导航'
     currentSearchEngine.value = 'bing'
     searchEngine.value = 'bing'
+    currentSearchEnabled.value = true
+    searchEnabled.value = true
   }
 }
 
@@ -472,6 +502,47 @@ const saveSearchEngineToGitHub = async () => {
     )
   } finally {
     searchEngineSaving.value = false
+  }
+}
+
+// 保存搜索功能开关到GitHub
+const saveSearchEnabledToGitHub = async () => {
+  searchEnabledSaving.value = true
+  try {
+    // 加载当前数据
+    const data = await loadCategoriesFromGitHub()
+
+    // 更新搜索功能开关
+    data.searchEnabled = searchEnabled.value
+
+    // 保存到GitHub
+    await saveCategoriesToGitHub(data)
+
+    currentSearchEnabled.value = searchEnabled.value
+    showDialog(
+      'success',
+      searchEnabled.value ? '🎉 搜索功能已启用' : '🎉 搜索功能已禁用',
+      searchEnabled.value
+        ? '搜索功能已成功启用，前台页面将显示搜索栏！'
+        : '搜索功能已成功禁用，前台页面将隐藏搜索栏！',
+      [
+        '• 更改将在 2-3 分钟内自动部署到线上',
+        '• 部署完成后，用户访问网站时将看到更新后的效果',
+        '• 如有问题，请检查Vercel或CFpage是否触发自动部署'
+      ]
+    )
+  } catch (error) {
+    console.error('保存搜索功能开关设置失败:', error)
+    // 恢复原状态
+    searchEnabled.value = currentSearchEnabled.value
+    showDialog(
+      'error',
+      '❌ 保存失败',
+      '搜索功能开关设置保存过程中发生错误，请重试',
+      [`• 错误详情: ${error.message}`]
+    )
+  } finally {
+    searchEnabledSaving.value = false
   }
 }
 
@@ -1066,6 +1137,77 @@ onMounted(() => {
 .save-logo-btn:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
+}
+
+/* 搜索功能开关样式 */
+.search-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #3498db;
+}
+
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 1px #3498db;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-status {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.saving-indicator {
+  color: #7f8c8d;
+  font-size: 13px;
 }
 
 /* 响应式设计 */

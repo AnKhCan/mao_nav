@@ -32,5 +32,6 @@ export const mockData = {
     }
   ],
   "title": "猫猫导航🐱",
-  "search": "bing"
+  "search": "bing",
+  "searchEnabled": true
 }

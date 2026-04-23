@@ -73,7 +73,7 @@
     <main class="main-content">
                   <!-- 顶部搜索栏 -->
       <header class="search-header">
-        <div class="search-container">
+        <div v-if="searchEnabled" class="search-container">
           <div class="search-engine-selector">
             <img :src="searchEngines[selectedEngine].icon" :alt="selectedEngine" class="engine-logo" />
             <select v-model="selectedEngine" class="engine-select">
@@ -229,7 +229,7 @@ import duckLogo from '@/assets/duck.png'
 import githubLogo from '@/assets/github.png'
 
 // 使用导航API
-const { categories, title, defaultSearchEngine, loading, error, fetchCategories } = useNavigation()
+const { categories, title, defaultSearchEngine, searchEnabled, loading, error, fetchCategories } = useNavigation()
 
 // 使用主题store
 const themeStore = useThemeStore()

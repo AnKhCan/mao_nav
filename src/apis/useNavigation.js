@@ -5,6 +5,7 @@ export function useNavigation() {
   const categories = ref([])
   const title = ref('')
   const defaultSearchEngine = ref('bing')
+  const searchEnabled = ref(true)
   const loading = ref(false)
   const error = ref(null)
 
@@ -30,6 +31,9 @@ export function useNavigation() {
         defaultSearchEngine.value = 'bing'
       }
 
+      // 设置搜索功能是否启用，默认为 true
+      searchEnabled.value = mockData.searchEnabled !== false
+
       // 动态设置页面标题
       document.title = title.value
 
@@ -49,6 +53,9 @@ export function useNavigation() {
         defaultSearchEngine.value = 'bing'
       }
 
+      // 设置搜索功能是否启用，默认为 true
+      searchEnabled.value = mockData.searchEnabled !== false
+
       document.title = title.value
     } finally {
       loading.value = false
@@ -59,6 +66,7 @@ export function useNavigation() {
     categories,
     title,
     defaultSearchEngine,
+    searchEnabled,
     loading,
     error,
     fetchCategories
