@@ -26,13 +26,26 @@ export const mockData = {
           "name": "RedisInsight",
           "url": "https://redis.io/insight/",
           "description": "官方桌面 GUI 客户端",
-          "icon": "https://www.faviconextractor.com/favicon/redis.io"
+          "icon": "https://vip.123pan.cn/1779195/ymjew503t0l000ddov4l8eh9hw25hk1bDIU0BIe2AGxvBdQ=.png"
+        }
+      ]
+    },
+    {
+      "id": "category-1776926646707",
+      "icon": "🔧",
+      "name": "效率工具",
+      "order": 2,
+      "sites": [
+        {
+          "id": "site-1776926914721",
+          "name": "ZTools",
+          "url": "https://github.com/ZToolsCenter/ZTools",
+          "description": "uTools 的开源实现",
+          "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddouqujr97h01svci3DIU0BIe2AGxvBdQ=.png"
         }
       ]
     }
   ],
   "title": "猫猫导航🐱",
-  "search": "bing",
-  "searchEnabled": false,
-  "_fileSha": "07080e816cf4fdc41a0590afae5298c6d9ed00c7"
+  "search": "bing"
 }
