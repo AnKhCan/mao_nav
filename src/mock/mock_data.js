@@ -10,8 +10,23 @@ export const mockData = {
           "id": "site-1776910204260",
           "name": "HexHub",
           "url": "https://www.hexhub.cn/",
-          "description": "全功能 SSH 客户端\n把终端、文件传输和高级连接能力放到一个工作区，适合日常运维与远程开发。",
+          "description": "全功能 SSH 客户端",
           "icon": "https://www.hexhub.cn/imgs/logo.png"
+        }
+      ]
+    },
+    {
+      "id": "category-1776910470768",
+      "icon": "💻",
+      "name": "编程工具",
+      "order": 1,
+      "sites": [
+        {
+          "id": "site-1776910576547",
+          "name": "RedisInsight",
+          "url": "https://redis.io/insight/",
+          "description": "官方桌面 GUI 客户端",
+          "icon": "https://www.faviconextractor.com/favicon/redis.io"
         }
       ]
     }
