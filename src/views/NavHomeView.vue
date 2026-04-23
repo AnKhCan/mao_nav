@@ -1272,6 +1272,11 @@ onUnmounted(() => {
   margin-right: 10px;
 }
 
+/* 当搜索栏隐藏时，主题切换按钮靠右 */
+.search-header:not(:has(.search-container)) .theme-toggle-btn {
+  margin-left: auto;
+}
+
 .theme-toggle-btn:hover {
   background: #f8f9fa;
   transform: scale(1.1);
