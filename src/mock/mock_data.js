@@ -26,7 +26,7 @@ export const mockData = {
           "name": "RedisInsight",
           "url": "https://redis.io/insight/",
           "description": "官方桌面 GUI 客户端",
-          "icon": "https://vip.123pan.cn/1779195/ymjew503t0l000ddov4l8eh9hw25hk1bDIU0BIe2AGxvBdQ=.png"
+          "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddpe451u4ssi4wpvbcDIU0BIe2AGxvBdQ=.png"
         }
       ]
     },
