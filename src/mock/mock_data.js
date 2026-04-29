@@ -62,5 +62,7 @@ export const mockData = {
     }
   ],
   "title": "猫猫导航🐱",
-  "search": "bing"
+  "search": "bing",
+  "_fileSha": "f45064bc681f7d101169528fe32f185e185d8862",
+  "searchEnabled": false
 }
