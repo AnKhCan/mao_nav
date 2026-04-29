@@ -1,10 +1,25 @@
 export const mockData = {
   "categories": [
     {
+      "id": "category-1777450732966",
+      "icon": "💼",
+      "name": "人工智能",
+      "order": 0,
+      "sites": [
+        {
+          "id": "site-1777450777633",
+          "name": "CodingPlan",
+          "url": "https://coding.mcppla.net/",
+          "description": "",
+          "icon": "https://www.faviconextractor.com/favicon/coding.mcppla.net"
+        }
+      ]
+    },
+    {
       "id": "category-1776910070395",
       "icon": "☁️",
       "name": "远程调用",
-      "order": 0,
+      "order": 1,
       "sites": [
         {
           "id": "site-1776910204260",
@@ -19,7 +34,7 @@ export const mockData = {
       "id": "category-1776910470768",
       "icon": "💻",
       "name": "编程工具",
-      "order": 1,
+      "order": 2,
       "sites": [
         {
           "id": "site-1776910576547",
@@ -34,7 +49,7 @@ export const mockData = {
       "id": "category-1776926646707",
       "icon": "🔧",
       "name": "效率工具",
-      "order": 2,
+      "order": 3,
       "sites": [
         {
           "id": "site-1776926914721",
