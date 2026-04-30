@@ -41,7 +41,7 @@ export const mockData = {
           "name": "RedisInsight",
           "url": "https://redis.io/insight/",
           "description": "官方桌面 GUI 客户端",
-          "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddpe451u4ssi4wpvbcDIU0BIe2AGxvBdQ=.png"
+          "icon": "https://vip.123pan.cn/1779195/yk6baz03t0m000ddrdtd7x4gsvk69522DIU0BIe2AGxvBdQ=.png"
         }
       ]
     },
@@ -63,6 +63,5 @@ export const mockData = {
   ],
   "title": "猫猫导航🐱",
   "search": "bing",
-  "_fileSha": "f45064bc681f7d101169528fe32f185e185d8862",
   "searchEnabled": false
 }
