@@ -13,7 +13,7 @@
           ➕ 添加站点
         </button>
         <button @click="handleSave" :disabled="loading" class="save-btn">
-          {{ loading ? '保存中...' : '💾 保存到GitHub' }}
+          {{ loading ? '保存中...' : '💾 保存部署' }}
         </button>
       </div>
     </div>

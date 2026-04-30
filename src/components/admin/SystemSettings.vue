@@ -159,13 +159,13 @@
         <div class="config-item">
           <label>管理员密钥 (ADMIN_PASSWORD):</label>
           <div class="config-value">
-            <span class="value-set">🔒 服务端配置[前端不可见]</span>
+            <span class="value-set">服务端配置[前端不可见]</span>
           </div>
         </div>
         <div class="config-item">
           <label>GitHub Token (GITHUB_TOKEN):</label>
           <div class="config-value">
-            <span class="value-set">🔒 服务端配置[前端不可见]</span>
+            <span class="value-set">服务端配置[前端不可见]</span>
           </div>
         </div>
         <div class="config-item">
@@ -813,7 +813,7 @@ onMounted(() => {
   font-weight: 500;
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   border: 1px solid #86efac;
 }
