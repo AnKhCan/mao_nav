@@ -346,11 +346,12 @@ const saveToGitHub = async () => {
       console.warn('加载当前数据失败，使用默认值:', error)
     }
 
-    // 保存完整的数据结构，保留 search 字段
+    // 保存完整的数据结构，保留 search 和 searchEnabled 字段
     await saveCategoriesToGitHub({
       categories: categories.value,
       title: navTitle.value,
-      search: currentData.search || 'bing'  // 保留搜索引擎设置
+      search: currentData.search || 'bing',  // 保留搜索引擎设置
+      searchEnabled: currentData.searchEnabled !== false  // 保留搜索功能开关设置
     })
     showDialog(
       'success',
