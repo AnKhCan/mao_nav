@@ -17,7 +17,7 @@ export const mockData = {
           "id": "site-1778117059263",
           "name": "CodingBenchmark",
           "url": "https://coding.15o.cc/",
-          "description": "CodingPlan 各个模型定时静态快照",
+          "description": "CodingPlan 定时静态快照",
           "icon": "https://www.faviconextractor.com/favicon/coding.15o.cc"
         }
       ]
