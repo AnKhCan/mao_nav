@@ -7,18 +7,11 @@ export const mockData = {
       "order": 0,
       "sites": [
         {
-          "id": "site-1777450777633",
-          "name": "CodingPlan",
-          "url": "https://coding.mcppla.net/",
-          "description": "",
-          "icon": "https://www.faviconextractor.com/favicon/coding.mcppla.net"
-        },
-        {
           "id": "site-1778117059263",
-          "name": "CodingBenchmark",
+          "name": "CodingPlan",
           "url": "https://coding.15o.cc/",
           "description": "",
-          "icon": "https://www.faviconextractor.com/favicon/coding.15o.cc"
+          "icon": "https://www.faviconextractor.com/favicon/coding.mcppla.net"
         }
       ]
     },
