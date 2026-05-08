@@ -57,6 +57,13 @@ export const mockData = {
           "url": "https://github.com/ZToolsCenter/ZTools",
           "description": "uTools 的开源实现",
           "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddouqujr97h01svci3DIU0BIe2AGxvBdQ=.png"
+        },
+        {
+          "id": "site-1778212812722",
+          "name": "TieZ",
+          "url": "https://tiez.name666.top/",
+          "description": "剪贴板",
+          "icon": "https://www.faviconextractor.com/favicon/tiez.name666.top"
         }
       ]
     }
