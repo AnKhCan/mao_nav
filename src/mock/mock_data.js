@@ -7,6 +7,13 @@ export const mockData = {
       "order": 0,
       "sites": [
         {
+          "id": "site-1778309051033",
+          "name": "DeepSeek",
+          "url": "https://chat.deepseek.com/",
+          "description": "",
+          "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddturu62cmzixjscxgDIU0BIe2AGxvBdQ=.png"
+        },
+        {
           "id": "site-1778117059263",
           "name": "CodingPlan",
           "url": "https://coding.15o.cc/",
