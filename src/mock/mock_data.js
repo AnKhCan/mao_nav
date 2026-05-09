@@ -71,6 +71,13 @@ export const mockData = {
           "url": "https://tiez.name666.top/",
           "description": "剪贴板",
           "icon": "https://www.faviconextractor.com/favicon/tiez.name666.top"
+        },
+        {
+          "id": "site-1778313075813",
+          "name": "Snipaste",
+          "url": "https://zh.snipaste.com/",
+          "description": "截图贴图",
+          "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddtxaw1v7adoxndo0xDIU0BIe2AGxvBdQ=.png"
         }
       ]
     }
