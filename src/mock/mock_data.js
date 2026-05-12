@@ -19,6 +19,13 @@ export const mockData = {
           "url": "https://coding.15o.cc/",
           "description": "",
           "icon": "https://www.faviconextractor.com/favicon/coding.mcppla.net"
+        },
+        {
+          "id": "site-1778554725552",
+          "name": "RikkaHub",
+          "url": "https://rikka-ai.com/",
+          "description": "安卓 AI 聊天客户端",
+          "icon": "https://www.faviconextractor.com/favicon/rikka-ai.com"
         }
       ]
     },
