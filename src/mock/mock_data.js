@@ -30,11 +30,18 @@ export const mockData = {
       ]
     },
     {
-      "id": "category-1776910070395",
-      "icon": "☁️",
-      "name": "远程调用",
+      "id": "category-1776910470768",
+      "icon": "💻",
+      "name": "编程工具",
       "order": 1,
       "sites": [
+        {
+          "id": "site-1776910576547",
+          "name": "RedisInsight",
+          "url": "https://redis.io/insight/",
+          "description": "官方桌面 GUI 客户端",
+          "icon": "https://vip.123pan.cn/1779195/yk6baz03t0m000ddrdtd7x4gsvk69522DIU0BIe2AGxvBdQ=.png"
+        },
         {
           "id": "site-1776910204260",
           "name": "HexHub",
@@ -45,25 +52,10 @@ export const mockData = {
       ]
     },
     {
-      "id": "category-1776910470768",
-      "icon": "💻",
-      "name": "编程工具",
-      "order": 2,
-      "sites": [
-        {
-          "id": "site-1776910576547",
-          "name": "RedisInsight",
-          "url": "https://redis.io/insight/",
-          "description": "官方桌面 GUI 客户端",
-          "icon": "https://vip.123pan.cn/1779195/yk6baz03t0m000ddrdtd7x4gsvk69522DIU0BIe2AGxvBdQ=.png"
-        }
-      ]
-    },
-    {
       "id": "category-1776926646707",
       "icon": "🔧",
       "name": "效率工具",
-      "order": 3,
+      "order": 2,
       "sites": [
         {
           "id": "site-1776926914721",
@@ -92,7 +84,7 @@ export const mockData = {
       "id": "category-1779173763966",
       "icon": "🎵",
       "name": "休闲娱乐",
-      "order": 0,
+      "order": 3,
       "sites": [
         {
           "id": "site-1779173914734",
