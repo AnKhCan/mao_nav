@@ -99,7 +99,7 @@ export const mockData = {
           "name": "MP",
           "url": "http://tinydrive.cn:13000/",
           "description": "",
-          "icon": "https://movie-pilot.org/assets/icon.png"
+          "icon": "https://vip.123pan.cn/1779195/yk6baz03t0n000ddwvompd0mzzgc0qmfDIU0BIe2AGxvBdQ=.png"
         },
         {
           "id": "site-1779174002144",
