@@ -87,6 +87,28 @@ export const mockData = {
           "icon": "https://vip.123pan.cn/1779195/ymjew503t0n000ddtxaw1v7adoxndo0xDIU0BIe2AGxvBdQ=.png"
         }
       ]
+    },
+    {
+      "id": "category-1779173763966",
+      "icon": "🎵",
+      "name": "休闲娱乐",
+      "order": 0,
+      "sites": [
+        {
+          "id": "site-1779173914734",
+          "name": "MP",
+          "url": "http://tinydrive.cn:13000/",
+          "description": "",
+          "icon": "https://movie-pilot.org/assets/icon.png"
+        },
+        {
+          "id": "site-1779174002144",
+          "name": "EMBY",
+          "url": "http://tinydrive.cn:8096/",
+          "description": "",
+          "icon": "https://vip.123pan.cn/1779195/yk6baz03t0l000ddwvobo8oucbg70whoDIU0BIe2AGxvBdQ=.png"
+        }
+      ]
     }
   ],
   "title": "猫猫导航🐱",
