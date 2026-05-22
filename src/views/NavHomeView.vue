@@ -73,7 +73,7 @@
 
     <!-- 右侧主内容区 -->
     <main class="main-content">
-                  <!-- 顶部搜索栏 -->
+        <!-- 顶部搜索栏 -->
       <header class="search-header">
         <div v-if="searchEnabled" class="search-container" :class="{ focused: searchFocused }">
           <!-- 自定义搜索引擎下拉选择 -->
@@ -155,9 +155,11 @@
         </button>
 
         <!-- 移动端菜单按钮 -->
-        <button class="mobile-menu-btn" @click="toggleMobileMenu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <button class="mobile-menu-btn" @click="toggleMobileMenu" aria-label="打开菜单">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="5" width="18" height="2.6" rx="1.3"/>
+            <rect x="3" y="10.7" width="18" height="2.6" rx="1.3"/>
+            <rect x="3" y="16.4" width="18" height="2.6" rx="1.3"/>
           </svg>
         </button>
 
@@ -1076,6 +1078,7 @@ onUnmounted(() => {
   border: none;
   padding: 0 10px;
   font-size: 15px;
+  font-family: inherit;
   outline: none;
   background: transparent;
   color: #0f172a;
@@ -1369,9 +1372,10 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.45);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  /* 白天模式：使用接近背景色的浅色叠加，配合较强模糊，避免大块黑色不协调 */
+  background: rgba(148, 163, 184, 0.28);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   z-index: 999;
   opacity: 0;
   visibility: hidden;
@@ -1662,7 +1666,7 @@ onUnmounted(() => {
   }
 
   .search-header {
-    padding: 10px 12px 10px 14px;
+    padding: 10px 12px;
     position: fixed;
     top: 0;
     left: 0;
@@ -1672,20 +1676,28 @@ onUnmounted(() => {
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     backdrop-filter: saturate(180%) blur(12px);
     box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
-    gap: 10px;
+    /* 同级元素间默认间距，配合下方按钮的额外 margin 形成视觉分组 */
+    gap: 6px;
   }
 
   /* 搜索栏缩短，不占满整个宽度 */
   .search-container {
     flex: 1 1 auto;
-    max-width: calc(100vw - 140px);
+    min-width: 0;
+    max-width: none;
     height: 40px;
     padding: 0 6px;
   }
 
-  /* 隐藏搜索栏时，按钮居中排列 */
+  /* 视觉分组：搜索框与右侧按钮之间留更多间距，两个操作按钮之间紧凑 */
+  .search-container ~ .theme-toggle-btn {
+    margin-left: 6px;
+  }
+
+  /* 搜索栏关闭时：两个按钮整体靠右上角 */
   .search-header:not(:has(.search-container)) {
-    justify-content: center;
+    justify-content: flex-end;
+    gap: 8px;
   }
 
   .content-area {
@@ -1697,13 +1709,26 @@ onUnmounted(() => {
     -webkit-overflow-scrolling: touch;
   }
 
-  .mobile-menu-btn {
+  /* 移动端按钮统一样式 - 相同大小 */
+  .mobile-menu-btn,
+  .theme-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
     flex-shrink: 0;
-    order: 3;
     margin: 0;
+    border-radius: 10px;
+  }
+
+  .mobile-menu-btn {
+    order: 3;
+  }
+
+  .theme-toggle-btn {
+    order: 2;
   }
 
   /* 移动端搜索栏微调 */
@@ -1735,12 +1760,6 @@ onUnmounted(() => {
   .engine-menu {
     min-width: 168px;
     top: calc(100% + 8px);
-  }
-
-  /* 主题切换按钮移动端调整 */
-  .theme-toggle-btn {
-    order: 2;
-    margin-right: 0;
   }
 
   .sites-grid {
@@ -1854,7 +1873,7 @@ onUnmounted(() => {
   margin-right: 10px;
 }
 
-/* 当搜索栏隐藏时，主题切换按钮靠右 */
+/* 搜索栏隐藏时，主题切换按钮靠右 */
 .search-header:not(:has(.search-container)) .theme-toggle-btn {
   margin-left: auto;
 }
