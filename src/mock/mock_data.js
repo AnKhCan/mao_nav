@@ -89,7 +89,7 @@ export const mockData = {
     },
     {
       "id": "category-1779173763966",
-      "icon": "🎵",
+      "icon": "🎮",
       "name": "休闲娱乐",
       "order": 3,
       "sites": [
@@ -112,5 +112,5 @@ export const mockData = {
   ],
   "title": "猫猫导航🐱",
   "search": "bing",
-  "searchEnabled": false
+  "searchEnabled": true
 }
