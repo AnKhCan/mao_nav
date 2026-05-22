@@ -1662,7 +1662,7 @@ onUnmounted(() => {
   }
 
   .search-header {
-    padding: 12px 16px;
+    padding: 10px 12px 10px 14px;
     position: fixed;
     top: 0;
     left: 0;
@@ -1672,22 +1672,38 @@ onUnmounted(() => {
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     backdrop-filter: saturate(180%) blur(12px);
     box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+    gap: 10px;
+  }
+
+  /* 搜索栏缩短，不占满整个宽度 */
+  .search-container {
+    flex: 1 1 auto;
+    max-width: calc(100vw - 140px);
+    height: 40px;
+    padding: 0 6px;
+  }
+
+  /* 隐藏搜索栏时，按钮居中排列 */
+  .search-header:not(:has(.search-container)) {
+    justify-content: center;
   }
 
   .content-area {
     flex: 1;
     padding: 20px 14px;
-    padding-top: 88px; /* 为固定的搜索框留出空间 */
-    padding-bottom: 300px; /* 增加底部padding确保内容可以完全滚动 */
+    padding-top: 80px;
+    padding-bottom: 300px;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+    -webkit-overflow-scrolling: touch;
   }
 
   .mobile-menu-btn {
-    display: flex; /* 在移动端显示菜单按钮 */
+    display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    order: 3;
+    margin: 0;
   }
 
   /* 移动端搜索栏微调 */
@@ -1697,7 +1713,7 @@ onUnmounted(() => {
   }
 
   .engine-trigger {
-    height: 30px;
+    height: 28px;
     padding: 0 6px 0 4px;
   }
 
@@ -1719,6 +1735,12 @@ onUnmounted(() => {
   .engine-menu {
     min-width: 168px;
     top: calc(100% + 8px);
+  }
+
+  /* 主题切换按钮移动端调整 */
+  .theme-toggle-btn {
+    order: 2;
+    margin-right: 0;
   }
 
   .sites-grid {
@@ -1923,6 +1945,7 @@ onUnmounted(() => {
 
 .dark .mobile-menu-btn:hover {
   background: rgba(255, 255, 255, 0.08);
+  color: #f0f6fc;
 }
 
 .dark .search-container {
