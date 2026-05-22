@@ -26,6 +26,13 @@ export const mockData = {
           "url": "https://rikka-ai.com/",
           "description": "安卓 AI 聊天客户端",
           "icon": "https://www.faviconextractor.com/favicon/rikka-ai.com"
+        },
+        {
+          "id": "site-1779421369210",
+          "name": "Hvoy",
+          "url": "https://hvoy.ai/",
+          "description": "挑选靠谱的中转站",
+          "icon": "https://www.faviconextractor.com/favicon/hvoy.ai"
         }
       ]
     },
