@@ -39,13 +39,15 @@
       <!-- 分类导航 -->
       <nav class="category-nav">
         <h2 class="nav-title">分类导航</h2>
-                <ul class="category-list">
+        <ul class="category-list">
           <li
             v-for="category in categories"
             :key="category.id"
             class="category-item"
+            :class="{ active: activeCategoryId === category.id }"
             @click="scrollToCategory(category.id)"
           >
+            <span class="category-indicator" aria-hidden="true"></span>
             <span class="category-icon">{{ category.icon }}</span>
             <span class="category-name">{{ category.name }}</span>
           </li>
@@ -111,24 +113,51 @@
 
         <!-- 移动端分类菜单 -->
         <div class="mobile-menu" :class="{ active: showMobileMenu }">
+          <!-- 顶部 Logo 区 -->
           <div class="mobile-menu-header">
             <div class="header-left">
-              <h3>分类导航</h3>
-              <img :src="githubLogo" alt="GitHub" class="header-github-icon" @click="openGitHub" />
+              <img src="/logo.png" alt="logo" class="mobile-logo" />
+              <h3>{{ title || '猫猫导航' }}</h3>
             </div>
-            <button class="close-btn" @click="closeMobileMenu">×</button>
+            <button class="close-btn" @click="closeMobileMenu" aria-label="关闭菜单">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
-                    <ul class="mobile-category-list">
+
+          <!-- 分类导航小标题 -->
+          <h4 class="mobile-nav-title">分类导航</h4>
+
+          <ul class="mobile-category-list">
             <li
               v-for="category in categories"
               :key="category.id"
               class="mobile-category-item"
+              :class="{ active: activeCategoryId === category.id }"
               @click="scrollToCategoryMobile(category.id)"
             >
+              <span class="category-indicator" aria-hidden="true"></span>
               <span class="category-icon">{{ category.icon }}</span>
               <span class="category-name">{{ category.name }}</span>
             </li>
           </ul>
+
+          <!-- 底部 GitHub 链接 -->
+          <div class="mobile-menu-footer">
+            <a
+              href="https://github.com/maodeyu180/mao_nav"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="github-link"
+              title="查看源代码"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              <span>开源不易，⭐一下吧！</span>
+            </a>
+          </div>
         </div>
 
         <!-- 移动端菜单遮罩 -->
@@ -217,7 +246,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useNavigation } from '@/apis/useNavigation.js'
 import { useThemeStore } from '@/stores/counter.js'
 // 导入搜索引擎logo图片
@@ -225,8 +254,6 @@ import googleLogo from '@/assets/goolge.png'
 import baiduLogo from '@/assets/baidu.png'
 import bingLogo from '@/assets/bing.png'
 import duckLogo from '@/assets/duck.png'
-// 导入GitHub logo
-import githubLogo from '@/assets/github.png'
 
 // 使用导航API
 const { categories, title, defaultSearchEngine, searchEnabled, loading, error, fetchCategories } = useNavigation()
@@ -238,6 +265,12 @@ const themeStore = useThemeStore()
 const searchQuery = ref('') // 搜索查询
 const selectedEngine = ref('bing') // 选中的搜索引擎，初始值会在组件挂载后更新
 const showMobileMenu = ref(false) // 移动端菜单显示状态
+const activeCategoryId = ref(null) // 当前可见的分类，用于侧边栏高亮
+
+// 滚动联动相关
+let categoryObserver = null
+// 点击跳转时短暂忽略 observer 推送的值，避免与平滑滚动期间多个 section 同时可见产生抖动
+let suppressObserverUntil = 0
 
 // 锁定功能相关
 const isLocked = ref(false) // 是否启用锁定功能
@@ -302,6 +335,11 @@ const scrollToCategory = (categoryId) => {
   const container = document.querySelector('.content-area')
 
   if (element && container) {
+    // 点击即时高亮，避免等待 observer 触发产生延迟感
+    activeCategoryId.value = categoryId
+    // 滚动期间（约 600ms）忽略 observer 的回写，避免高亮跳来跳去
+    suppressObserverUntil = Date.now() + 700
+
     // 检查是否为移动端
     const isMobile = window.innerWidth <= 768
 
@@ -324,6 +362,57 @@ const scrollToCategory = (categoryId) => {
     smoothScrollTo(container, Math.max(0, targetTop), 600)
   }
 }
+
+// 初始化滚动联动观察器，监听各分类区块进入视口
+const setupCategoryObserver = () => {
+  if (categoryObserver) {
+    categoryObserver.disconnect()
+    categoryObserver = null
+  }
+
+  const container = document.querySelector('.content-area')
+  const sections = document.querySelectorAll('.category-section')
+  if (!container || sections.length === 0) return
+
+  categoryObserver = new IntersectionObserver(
+    (entries) => {
+      if (Date.now() < suppressObserverUntil) return
+
+      // 找出当前所有可见 section 中，最靠近容器顶部的一个作为激活项
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .map((e) => ({ id: e.target.id.replace('category-', ''), top: e.boundingClientRect.top }))
+
+      if (visible.length === 0) return
+
+      visible.sort((a, b) => a.top - b.top)
+      activeCategoryId.value = visible[0].id
+    },
+    {
+      root: container,
+      // 顶部留出 search-header 的空间，底部偏 60% 让"接近顶部"的 section 更容易胜出
+      rootMargin: '-90px 0px -60% 0px',
+      threshold: 0,
+    }
+  )
+
+  sections.forEach((section) => categoryObserver.observe(section))
+
+  // 兜底：初始默认高亮第一个
+  if (!activeCategoryId.value && categories.value.length > 0) {
+    activeCategoryId.value = categories.value[0].id
+  }
+}
+
+// categories 由异步接口写入，渲染完成后再绑定 observer
+watch(
+  categories,
+  async () => {
+    await nextTick()
+    setupCategoryObserver()
+  },
+  { flush: 'post' }
+)
 
 // 检查是否启用锁定功能
 const checkLockStatus = () => {
@@ -412,11 +501,6 @@ const scrollToCategoryMobile = (categoryId) => {
   }, 200)
 }
 
-// 打开GitHub项目页面
-const openGitHub = () => {
-  window.open('https://github.com/maodeyu180/mao_nav', '_blank')
-}
-
 // 组件挂载时获取数据
 onMounted(async () => {
   checkLockStatus() // 检查锁定状态
@@ -429,6 +513,11 @@ onMounted(async () => {
 onUnmounted(() => {
   // 确保卸载时恢复body滚动
   document.body.style.overflow = ''
+  // 清理滚动联动观察器
+  if (categoryObserver) {
+    categoryObserver.disconnect()
+    categoryObserver = null
+  }
 })
 </script>
 
@@ -541,114 +630,167 @@ onUnmounted(() => {
   background-color: #f5f7fa;
 }
 
-/* 左侧边栏样式 */
+/* 左侧边栏样式 —— 现代极简卡片风格 */
 .sidebar {
-  width: 280px;
-  background-color: #2c3e50;
-  color: white;
+  width: 260px;
+  background-color: #ffffff;
+  color: #1f2937;
   padding: 0;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #eef0f3;
   height: 100vh;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
-  padding-left: 20px;
-  padding-top: 13px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px 20px;
+  gap: 12px;
 }
 
 .logo {
-  width: 55px;
-  height: 55px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  margin-right: 15px;
+  margin-right: 0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 .site-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   margin: 0;
-  color: white;
+  color: #0f172a;
+  letter-spacing: 0.2px;
 }
 
 .category-nav {
-  padding: 20px 0;
-  height: calc(100vh - 180px); /* 为底部留出空间 */
+  padding: 8px 12px 20px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
+/* 自定义 scrollbar，更细更柔和 */
+.category-nav::-webkit-scrollbar {
+  width: 6px;
+}
+.category-nav::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 3px;
+}
+.category-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.18);
+}
+
 .nav-title {
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 600;
-  margin: 0 20px 15px;
-  color: #bdc3c7;
+  margin: 12px 12px 10px;
+  color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
 
 .category-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .category-item {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  padding: 10px 12px;
+  margin: 0 4px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+  color: #475569;
+}
+
+/* 左侧激活指示条 */
+.category-indicator {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 3px;
+  height: 0;
+  background: #3b82f6;
+  border-radius: 0 3px 3px 0;
+  transform: translateY(-50%);
+  transition: height 0.25s ease;
 }
 
 .category-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 4px 0 0 #3498db;
+  background-color: #f3f5f9;
+  color: #1f2937;
+}
+
+.category-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.category-item.active .category-indicator {
+  height: 60%;
+}
+
+.category-item.active .category-icon {
+  transform: scale(1.08);
 }
 
 .category-icon {
-  font-size: 18px;
+  font-size: 17px;
   margin-right: 12px;
-  width: 20px;
+  width: 22px;
   text-align: center;
+  transition: transform 0.2s ease;
 }
 
 .category-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
+  letter-spacing: 0.1px;
 }
 
 /* 左侧边栏底部 */
 .sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: auto;
+  padding: 12px 16px 16px;
+  border-top: 1px solid #eef0f3;
+  flex-shrink: 0;
 }
 
 .github-link {
   display: flex;
   align-items: center;
-  color: #bdc3c7;
+  color: #64748b;
   text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .github-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  transform: translateY(-1px);
+  background: #f3f5f9;
+  color: #0f172a;
 }
 
 .github-link svg {
-  margin-right: 8px;
+  margin-right: 10px;
   transition: transform 0.3s ease;
 }
 
@@ -748,30 +890,34 @@ onUnmounted(() => {
   display: none;
   background: none;
   border: none;
-  color: #2c3e50;
+  color: #475569;
   cursor: pointer;
   padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  border-radius: 10px;
+  transition: all 0.2s ease;
 }
 
-.mobile-menu-btn:hover {
-  background: #f8f9fa;
+.mobile-menu-btn:hover,
+.mobile-menu-btn:active {
+  background: #f3f5f9;
+  color: #0f172a;
 }
 
-/* 移动端菜单 */
+/* 移动端菜单（抽屉） */
 .mobile-menu {
   position: fixed;
   top: 0;
   right: -100%;
-  width: 240px;
+  width: 280px;
+  max-width: 86vw;
   height: 100vh;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  height: 100svh;
+  background: #ffffff;
+  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.12);
+  border-radius: 16px 0 0 16px;
   z-index: 1001;
-  transition: right 0.3s ease;
-  overflow-y: auto;
-  overflow-x: hidden;
+  transition: right 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -784,10 +930,9 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e9ecef;
-  background: #2c3e50;
-  color: white;
+  padding: 18px 20px;
+  background: transparent;
+  color: #0f172a;
   flex-shrink: 0;
 }
 
@@ -795,81 +940,174 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+.mobile-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
 }
 
 .mobile-menu-header h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.header-github-icon {
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  opacity: 0.8;
-}
-
-.header-github-icon:hover {
-  opacity: 1;
-  transform: scale(1.1);
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .close-btn {
-  background: none;
+  background: #f3f5f9;
   border: none;
-  color: white;
-  font-size: 24px;
+  color: #64748b;
   cursor: pointer;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.close-btn:hover,
+.close-btn:active {
+  background: #e5e9f0;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+.mobile-nav-title {
+  font-size: 11px;
+  font-weight: 600;
+  margin: 4px 20px 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
 }
 
 .mobile-category-list {
   list-style: none;
-  padding: 0;
+  padding: 0 8px;
   margin: 0;
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 160px; /* 增加底部内边距确保最后一项完全可见 */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* 避免内容被底部 footer 遮挡 */
+  padding-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-category-list::-webkit-scrollbar {
+  width: 4px;
+}
+.mobile-category-list::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 2px;
 }
 
 .mobile-category-item {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 16px 20px;
+  padding: 12px 14px;
+  margin: 0 4px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f8f9fa;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  color: #475569;
 }
 
-.mobile-category-item:hover {
-  background: #f8f9fa;
+.mobile-category-item:hover,
+.mobile-category-item:active {
+  background: #f3f5f9;
+  color: #1f2937;
+}
+
+.mobile-category-item.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.mobile-category-item.active .category-name {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.mobile-category-item .category-indicator {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 3px;
+  height: 0;
+  background: #3b82f6;
+  border-radius: 0 3px 3px 0;
+  transform: translateY(-50%);
+  transition: height 0.25s ease;
+}
+
+.mobile-category-item.active .category-indicator {
+  height: 60%;
 }
 
 .mobile-category-item .category-icon {
-  font-size: 20px;
+  font-size: 18px;
   margin-right: 12px;
-  width: 24px;
+  width: 22px;
   text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.mobile-category-item.active .category-icon {
+  transform: scale(1.08);
 }
 
 .mobile-category-item .category-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
-  color: #2c3e50;
+  color: inherit;
+}
+
+/* 移动端菜单底部 */
+.mobile-menu-footer {
+  padding: 12px 16px 18px;
+  border-top: 1px solid #eef0f3;
+  flex-shrink: 0;
+}
+
+.mobile-menu-footer .github-link {
+  display: flex;
+  align-items: center;
+  color: #64748b;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mobile-menu-footer .github-link:hover,
+.mobile-menu-footer .github-link:active {
+  background: #f3f5f9;
+  color: #0f172a;
+}
+
+.mobile-menu-footer .github-link svg {
+  margin-right: 10px;
+  transition: transform 0.3s ease;
 }
 
 
@@ -881,7 +1119,9 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   z-index: 999;
   opacity: 0;
   visibility: hidden;
@@ -1172,27 +1412,31 @@ onUnmounted(() => {
   }
 
   .search-header {
-    padding: 15px 20px;
+    padding: 12px 16px;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 500;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(12px);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
   }
 
   .content-area {
     flex: 1;
-    padding: 20px 15px;
-    padding-top: 100px; /* 为固定的搜索框留出空间 */
+    padding: 20px 14px;
+    padding-top: 88px; /* 为固定的搜索框留出空间 */
     padding-bottom: 300px; /* 增加底部padding确保内容可以完全滚动 */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
   }
 
   .mobile-menu-btn {
-    display: block; /* 在移动端显示菜单按钮 */
+    display: flex; /* 在移动端显示菜单按钮 */
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
   }
 
@@ -1202,18 +1446,35 @@ onUnmounted(() => {
   }
 
   .site-card {
-    padding: 12px;
+    padding: 14px 10px;
     flex-direction: column;
     text-align: center;
+    border-radius: 14px;
+    border: 1px solid #eef0f3;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .site-card:active {
+    transform: scale(0.97);
+    background-color: #f8fafc;
   }
 
   .site-card .site-icon {
     margin-right: 0;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+
+  .site-card .site-icon img {
+    width: 28px;
+    height: 28px;
   }
 
   .site-card .site-name {
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   .site-card .site-description {
@@ -1221,17 +1482,33 @@ onUnmounted(() => {
   }
 
   .category-title {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 22px;
+    margin-bottom: 18px;
   }
 
   .category-title .category-icon {
-    font-size: 28px;
-    margin-right: 12px;
+    font-size: 26px;
+    margin-right: 10px;
   }
 
   .category-title .category-name {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  /* 移动端暗色模式适配 */
+  .dark .search-header {
+    background: rgba(15, 23, 42, 0.82);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(12px);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .dark .site-card {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .dark .site-card:active {
+    background-color: rgba(255, 255, 255, 0.04);
   }
 
   /* 移动端页面底部 */
@@ -1286,33 +1563,85 @@ onUnmounted(() => {
 
 /* 暗色模式样式 */
 .dark .nav-home {
-  background-color: #1a1a1a;
+  background-color: #0d1117;
 }
 
 .dark .sidebar {
-  background-color: #1e293b;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  background-color: #161b22;
+  color: #c9d1d9;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.dark .site-title {
+  color: #f0f6fc;
+}
+
+.dark .logo {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dark .nav-title {
+  color: #6e7681;
+}
+
+.dark .category-item {
+  color: #8b949e;
+}
+
+.dark .category-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #e6edf3;
+}
+
+.dark .category-item.active {
+  background-color: rgba(88, 166, 255, 0.12);
+  color: #58a6ff;
+}
+
+.dark .category-indicator {
+  background: #58a6ff;
+}
+
+.dark .category-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dark .category-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.dark .sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark .github-link {
+  color: #8b949e;
+}
+
+.dark .github-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e6edf3;
 }
 
 .dark .search-header {
-  background: #1e293b;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  background: #161b22;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .dark .theme-toggle-btn {
-  color: #e2e8f0;
+  color: #e6edf3;
 }
 
 .dark .theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .dark .mobile-menu-btn {
-  color: #e2e8f0;
+  color: #e6edf3;
 }
 
 .dark .mobile-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .dark .search-container {
@@ -1320,174 +1649,238 @@ onUnmounted(() => {
 }
 
 .dark .search-engine-selector {
-  background: #374151;
-  border-right: 1px solid #4b5563;
+  background: #21262d;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .dark .search-engine-selector:hover {
-  background: #4b5563;
+  background: #30363d;
 }
 
 .dark .search-input {
-  background: #374151;
-  color: #e2e8f0;
+  background: #21262d;
+  color: #e6edf3;
   border: none;
 }
 
 .dark .search-input::placeholder {
-  color: #9ca3af;
+  color: #8b949e;
 }
 
 .dark .engine-select {
-  background: #374151;
-  color: #e2e8f0;
+  background: #21262d;
+  color: #e6edf3;
 }
 
 .dark .engine-select option {
-  background: #374151;
-  color: #e2e8f0;
+  background: #21262d;
+  color: #e6edf3;
 }
 
 .dark .content-area {
-  background: #1a1a1a;
+  background: #0d1117;
 }
 
 .dark .site-card {
-  background: #374151;
-  border: 1px solid #4b5563;
-  color: #e2e8f0;
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e6edf3;
 }
 
 .dark .site-card:hover {
+  background: #21262d;
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 .dark .site-card::before {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.08), rgba(163, 113, 247, 0.08));
 }
 
 .dark .site-name {
-  color: #e2e8f0;
+  color: #e6edf3;
 }
 
 .dark .site-description {
-  color: #9ca3af;
+  color: #8b949e;
 }
 
 .dark .site-icon {
-  background: #4b5563;
+  background: #21262d;
 }
 
 .dark .category-title {
-  color: #e2e8f0;
+  color: #e6edf3;
 }
 
 .dark .mobile-menu {
-  background: #1e293b;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+  background: #161b22;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark .mobile-menu-btn {
+  color: #c9d1d9;
+}
+
+.dark .mobile-menu-btn:hover,
+.dark .mobile-menu-btn:active {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f0f6fc;
+}
+
+.dark .mobile-menu-header h3 {
+  color: #f0f6fc;
+}
+
+.dark .mobile-logo {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dark .close-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #8b949e;
+}
+
+.dark .close-btn:hover,
+.dark .close-btn:active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f0f6fc;
+}
+
+.dark .mobile-nav-title {
+  color: #6e7681;
+}
+
+.dark .mobile-category-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .dark .mobile-category-item {
-  border-bottom: 1px solid #374151;
+  color: #8b949e;
 }
 
-.dark .mobile-category-item:hover {
-  background: #374151;
+.dark .mobile-category-item:hover,
+.dark .mobile-category-item:active {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e6edf3;
 }
 
-.dark .mobile-category-item .category-name {
-  color: #e2e8f0;
+.dark .mobile-category-item.active {
+  background: rgba(88, 166, 255, 0.12);
+  color: #58a6ff;
+}
+
+.dark .mobile-category-item.active .category-name {
+  color: #58a6ff;
+}
+
+.dark .mobile-category-item .category-indicator {
+  background: #58a6ff;
+}
+
+.dark .mobile-menu-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark .mobile-menu-footer .github-link {
+  color: #8b949e;
+}
+
+.dark .mobile-menu-footer .github-link:hover,
+.dark .mobile-menu-footer .github-link:active {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e6edf3;
 }
 
 .dark .page-footer {
-  background: linear-gradient(135deg, #1e293b 0%, #374151 100%);
-  border-top: 3px solid #3b82f6;
+  background: linear-gradient(135deg, #161b22 0%, #21262d 100%);
+  border-top: 3px solid #58a6ff;
 }
 
 .dark .footer-info h3 {
-  color: #e2e8f0;
+  color: #e6edf3;
 }
 
 .dark .footer-info p {
-  color: #9ca3af;
+  color: #8b949e;
 }
 
 .dark .footer-link {
-  background: #374151;
-  border: 1px solid #4b5563;
-  color: #3b82f6;
+  background: #21262d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #58a6ff;
 }
 
 .dark .footer-link:hover {
-  background: #3b82f6;
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  background: #58a6ff;
+  color: #0d1117;
+  box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
 }
 
 .dark .footer-bottom p {
-  color: #9ca3af;
+  color: #8b949e;
 }
 
 .dark .footer-bottom a {
-  color: #3b82f6;
+  color: #58a6ff;
 }
 
 .dark .footer-bottom a:hover {
-  color: #60a5fa;
+  color: #79b8ff;
 }
 
 .dark .loading,
 .dark .error {
-  color: #9ca3af;
+  color: #8b949e;
 }
 
 .dark .retry-btn {
-  background: #3b82f6;
-  color: white;
+  background: #58a6ff;
+  color: #0d1117;
 }
 
 .dark .retry-btn:hover {
-  background: #2563eb;
+  background: #79b8ff;
 }
 
 /* 锁定界面暗色模式 */
 .dark .lock-container {
-  background: #0f172a;
+  background: #0d1117;
 }
 
 .dark .lock-box {
-  background: #1e293b;
-  color: #e2e8f0;
+  background: #161b22;
+  color: #e6edf3;
 }
 
 .dark .lock-box h1 {
-  color: #e2e8f0;
+  color: #e6edf3;
 }
 
 .dark .lock-description {
-  color: #94a3b8;
+  color: #8b949e;
 }
 
 .dark .lock-box .form-group label {
-  color: #cbd5e1;
+  color: #c9d1d9;
 }
 
 .dark .lock-box .form-input {
-  background: #374151;
-  border: 2px solid #4b5563;
-  color: #e2e8f0;
+  background: #21262d;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  color: #e6edf3;
 }
 
 .dark .lock-box .form-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
 }
 
 .dark .unlock-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
 }
 
 .dark .unlock-btn:hover:not(:disabled) {
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 30px rgba(88, 166, 255, 0.4);
 }
 </style>
