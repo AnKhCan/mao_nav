@@ -21,6 +21,25 @@
 /* 重置默认样式 */
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 移除所有可交互元素的浏览器默认聚焦轮廓与点击高亮 */
+a,
+button,
+input,
+select,
+textarea,
+[role='button'],
+[tabindex] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus,
+button:focus,
+[role='button']:focus,
+[tabindex]:focus {
+  outline: none;
 }
 
   body {

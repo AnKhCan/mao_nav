@@ -1812,13 +1812,17 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
     padding: 0;
     flex-shrink: 0;
     margin: 0;
     border-radius: 50%;
     border: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
     color: #2f3a55;
     background: #eef1f6;
     box-shadow:
@@ -1829,6 +1833,16 @@ onUnmounted(() => {
       box-shadow 0.2s ease,
       background-color 0.2s ease,
       color 0.2s ease;
+  }
+
+  .search-header .mobile-menu-btn:focus,
+  .search-header .mobile-menu-btn:focus-visible,
+  .search-header .theme-toggle-btn:focus,
+  .search-header .theme-toggle-btn:focus-visible {
+    outline: none;
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.06),
+      0 4px 12px rgba(15, 23, 42, 0.08);
   }
 
   .search-header .mobile-menu-btn {
@@ -1853,8 +1867,8 @@ onUnmounted(() => {
 
   .search-header .theme-toggle-btn svg,
   .search-header .mobile-menu-btn svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   /* 桌面端图标在移动端隐藏，使用更细更简洁的 mobile 版本 */
