@@ -146,20 +146,37 @@
 
         <!-- 主题切换按钮 -->
         <button class="theme-toggle-btn" @click="themeStore.toggleTheme" :title="themeStore.isDarkMode ? '切换到日间模式' : '切换到夜间模式'">
-          <svg v-if="!themeStore.isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <!-- 桌面端图标（实心） -->
+          <svg v-if="!themeStore.isDarkMode" class="theme-icon-desktop" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"/>
           </svg>
-          <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <svg v-else class="theme-icon-desktop" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27098 10 5.04157 10 7ZM4 12C4 16.4183 7.58172 20 12 20C15.0583 20 17.7158 18.2839 19.062 15.7621C18.3945 15.9187 17.7035 16 17 16C12.0294 16 8 11.9706 8 7C8 6.29648 8.08133 5.60547 8.2379 4.938C5.71611 6.28423 4 8.9417 4 12Z"/>
+          </svg>
+
+          <!-- 移动端图标（细线 stroke 风格，参考设计稿） -->
+          <svg v-if="!themeStore.isDarkMode" class="theme-icon-mobile" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <line x1="12" y1="2.5" x2="12" y2="5"></line>
+            <line x1="12" y1="19" x2="12" y2="21.5"></line>
+            <line x1="2.5" y1="12" x2="5" y2="12"></line>
+            <line x1="19" y1="12" x2="21.5" y2="12"></line>
+            <line x1="5.2" y1="5.2" x2="6.95" y2="6.95"></line>
+            <line x1="17.05" y1="17.05" x2="18.8" y2="18.8"></line>
+            <line x1="5.2" y1="18.8" x2="6.95" y2="17.05"></line>
+            <line x1="17.05" y1="6.95" x2="18.8" y2="5.2"></line>
+          </svg>
+          <svg v-else class="theme-icon-mobile" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"></path>
           </svg>
         </button>
 
         <!-- 移动端菜单按钮 -->
         <button class="mobile-menu-btn" @click="toggleMobileMenu" aria-label="打开菜单">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3" y="5" width="18" height="2.6" rx="1.3"/>
-            <rect x="3" y="10.7" width="18" height="2.6" rx="1.3"/>
-            <rect x="3" y="16.4" width="18" height="2.6" rx="1.3"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 7H20"/>
+            <path d="M4 12H20"/>
+            <path d="M4 17H20"/>
           </svg>
         </button>
 
@@ -1235,7 +1252,22 @@ onUnmounted(() => {
 .close-btn:active {
   background: #e5e9f0;
   color: #0f172a;
-  transform: rotate(90deg);
+}
+
+/* 菜单打开时，X 按钮自旋转入场 */
+.mobile-menu.active .close-btn svg {
+  animation: closeBtnSpinIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes closeBtnSpinIn {
+  0% {
+    transform: rotate(-180deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
 }
 
 .mobile-nav-title {
@@ -1438,22 +1470,87 @@ onUnmounted(() => {
 }
 
 .category-title {
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 25px;
-  color: #2c3e50;
-  display: flex;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1f2937;
+  display: inline-flex;
   align-items: center;
+  gap: 14px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .category-title .category-icon {
-  font-size: 32px;
-  margin-right: 16px;
+  font-size: 26px;
+  margin-right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.45) 45%,
+    rgba(255, 255, 255, 0.6) 100%
+  );
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  border-radius: 16px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 8px 24px -6px rgba(15, 23, 42, 0.12),
+    0 2px 8px -2px rgba(15, 23, 42, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 2px rgba(15, 23, 42, 0.04),
+    inset 1px 0 1px rgba(255, 255, 255, 0.45),
+    inset -1px 0 1px rgba(255, 255, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.category-title .category-icon::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  height: 48%;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.2) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-radius: 15px 15px 50% 50% / 15px 15px 28% 28%;
+  pointer-events: none;
+}
+
+.category-title .category-icon::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 12%;
+  right: 12%;
+  height: 22%;
+  background: linear-gradient(0deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(3px);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .category-title .category-name {
-  margin-left: 10px;
-  font-size: 26px;
+  margin-left: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #1f2937;
 }
 
 .sites-grid {
@@ -1676,8 +1773,8 @@ onUnmounted(() => {
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     backdrop-filter: saturate(180%) blur(12px);
     box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
-    /* 同级元素间默认间距，配合下方按钮的额外 margin 形成视觉分组 */
-    gap: 6px;
+    /* 同级元素间默认间距：按钮之间用 12px，更清晰的视觉分组 */
+    gap: 12px;
   }
 
   /* 搜索栏缩短，不占满整个宽度 */
@@ -1689,15 +1786,15 @@ onUnmounted(() => {
     padding: 0 6px;
   }
 
-  /* 视觉分组：搜索框与右侧按钮之间留更多间距，两个操作按钮之间紧凑 */
+  /* 视觉分组：搜索框与右侧按钮之间留更大间距 */
   .search-container ~ .theme-toggle-btn {
-    margin-left: 6px;
+    margin-left: 8px;
   }
 
   /* 搜索栏关闭时：两个按钮整体靠右上角 */
   .search-header:not(:has(.search-container)) {
     justify-content: flex-end;
-    gap: 8px;
+    gap: 12px;
   }
 
   .content-area {
@@ -1709,26 +1806,63 @@ onUnmounted(() => {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* 移动端按钮统一样式 - 相同大小 */
-  .mobile-menu-btn,
-  .theme-toggle-btn {
+  /* 移动端按钮统一样式 - 灰色圆形 + 柔和阴影 */
+  .search-header .mobile-menu-btn,
+  .search-header .theme-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     flex-shrink: 0;
     margin: 0;
-    border-radius: 10px;
+    border-radius: 50%;
+    border: none;
+    color: #2f3a55;
+    background: #eef1f6;
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.06),
+      0 4px 12px rgba(15, 23, 42, 0.08);
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
-  .mobile-menu-btn {
+  .search-header .mobile-menu-btn {
     order: 3;
   }
 
-  .theme-toggle-btn {
+  .search-header .theme-toggle-btn {
     order: 2;
+  }
+
+  .search-header .mobile-menu-btn:hover,
+  .search-header .mobile-menu-btn:active,
+  .search-header .theme-toggle-btn:hover,
+  .search-header .theme-toggle-btn:active {
+    background: #e3e8f0;
+    color: #1f2937;
+    transform: translateY(-1px);
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.08),
+      0 8px 18px rgba(15, 23, 42, 0.1);
+  }
+
+  .search-header .theme-toggle-btn svg,
+  .search-header .mobile-menu-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* 桌面端图标在移动端隐藏，使用更细更简洁的 mobile 版本 */
+  .search-header .theme-toggle-btn .theme-icon-desktop {
+    display: none;
+  }
+  .search-header .theme-toggle-btn .theme-icon-mobile {
+    display: block;
   }
 
   /* 移动端搜索栏微调 */
@@ -1804,17 +1938,33 @@ onUnmounted(() => {
   }
 
   .category-title {
-    font-size: 22px;
-    margin-bottom: 18px;
+    font-size: 16px;
+    margin-bottom: 14px;
+    gap: 10px;
+    padding: 0;
   }
 
   .category-title .category-icon {
-    font-size: 26px;
-    margin-right: 10px;
+    font-size: 22px;
+    margin-right: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    box-shadow:
+      0 6px 18px -5px rgba(15, 23, 42, 0.12),
+      0 2px 6px -2px rgba(15, 23, 42, 0.06),
+      inset 0 1px 1px rgba(255, 255, 255, 0.95),
+      inset 0 -1px 2px rgba(15, 23, 42, 0.04),
+      inset 1px 0 1px rgba(255, 255, 255, 0.45),
+      inset -1px 0 1px rgba(255, 255, 255, 0.25);
+  }
+
+  .category-title .category-icon::before {
+    border-radius: 12px 12px 50% 50% / 12px 12px 28% 28%;
   }
 
   .category-title .category-name {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   /* 移动端暗色模式适配 */
@@ -1871,6 +2021,14 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   margin-right: 10px;
+}
+
+/* 桌面端默认隐藏移动端专用图标 */
+.theme-toggle-btn .theme-icon-mobile {
+  display: none;
+}
+.theme-toggle-btn .theme-icon-desktop {
+  display: block;
 }
 
 /* 搜索栏隐藏时，主题切换按钮靠右 */
@@ -2087,6 +2245,44 @@ onUnmounted(() => {
 
 .dark .category-title {
   color: #e6edf3;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.dark .category-title .category-name {
+  color: #f0f6fc;
+}
+
+.dark .category-title .category-icon {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 8px 24px -6px rgba(0, 0, 0, 0.5),
+    0 2px 8px -2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.25),
+    inset 1px 0 1px rgba(255, 255, 255, 0.1),
+    inset -1px 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.dark .category-title .category-icon::before {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.dark .category-title .category-icon::after {
+  background: linear-gradient(0deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .dark .mobile-menu {
@@ -2129,6 +2325,29 @@ onUnmounted(() => {
 
 .dark .mobile-category-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 768px) {
+  .dark .search-header .mobile-menu-btn,
+  .dark .search-header .theme-toggle-btn {
+    border: none;
+    background: #21272f;
+    color: #e6edf3;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+
+  .dark .search-header .mobile-menu-btn:hover,
+  .dark .search-header .mobile-menu-btn:active,
+  .dark .search-header .theme-toggle-btn:hover,
+  .dark .search-header .theme-toggle-btn:active {
+    background: #2a313b;
+    color: #f8fbff;
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.45),
+      0 8px 18px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .dark .mobile-category-item {
