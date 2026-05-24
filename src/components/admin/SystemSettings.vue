@@ -152,6 +152,44 @@
       </div>
     </div>
 
+    <!-- 图标缓存 -->
+    <div class="settings-section">
+      <h3>🖼️ 图标缓存</h3>
+      <div class="icon-cache">
+        <div class="cache-info">
+          <p class="cache-line">
+            <strong>当前缓存:</strong>
+            <span v-if="cacheStatus === 'loading'" class="cache-loading">加载中...</span>
+            <span v-else-if="cacheStatus === 'unavailable'" class="cache-unavailable">{{ cacheUnavailableReason }}</span>
+            <span v-else>{{ cacheInfo.count }} / {{ cacheInfo.max }} 个图标</span>
+          </p>
+          <p v-if="cacheStatus === 'ready' && cacheInfo.oldestAt" class="cache-line">
+            <strong>最早缓存于:</strong>
+            <span>{{ formatTime(cacheInfo.oldestAt) }}</span>
+          </p>
+          <p class="setting-description">
+            策略：Cache-First，30 天后自动失效；超过 {{ cacheInfo.max }} 个时按时间清理最旧的。仅在生产环境生效（开发环境不会注册 Service Worker）。
+          </p>
+        </div>
+        <div class="cache-actions">
+          <button
+            @click="refreshCacheInfo"
+            :disabled="cacheStatus === 'loading'"
+            class="test-btn"
+          >
+            🔄 刷新
+          </button>
+          <button
+            @click="handleClearCache"
+            :disabled="cacheStatus !== 'ready' || cacheInfo.count === 0 || cacheClearing"
+            class="clear-cache-btn"
+          >
+            {{ cacheClearing ? '清理中...' : '🗑️ 清空图标缓存' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 环境变量配置 -->
     <div class="settings-section">
       <h3>🌍 环境变量配置</h3>
@@ -294,6 +332,7 @@ VITE_GITHUB_BRANCH=master</code></pre>
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useGitHubAPI } from '../../apis/useGitHubAPI.js'
+import { clearIconCache, getIconCacheInfo } from '../../utils/iconCache.js'
 import CustomDialog from './CustomDialog.vue'
 
 const { verifyGitHubConnection, loadCategoriesFromGitHub, saveCategoriesToGitHub, uploadBinaryFile } = useGitHubAPI()
@@ -341,6 +380,12 @@ const selectedLogoFile = ref(null)
 const logoPreview = ref('')
 const currentLogo = ref('/logo.png')
 const logoSaving = ref(false)
+
+// 图标缓存
+const cacheStatus = ref('loading') // 'loading' | 'ready' | 'unavailable'
+const cacheUnavailableReason = ref('Service Worker 尚未激活，请刷新页面后重试')
+const cacheInfo = ref({ count: 0, max: 300, oldestAt: null, newestAt: null })
+const cacheClearing = ref(false)
 
 // 自定义弹框状态
 const dialogVisible = ref(false)
@@ -642,12 +687,69 @@ const saveLogoToGitHub = async () => {
   }
 }
 
+// 图标缓存：格式化时间
+const formatTime = (ts) => {
+  if (!ts) return ''
+  return new Date(ts).toLocaleString('zh-CN')
+}
+
+// 图标缓存：刷新统计信息
+const refreshCacheInfo = async () => {
+  cacheStatus.value = 'loading'
+  try {
+    const data = await getIconCacheInfo()
+    cacheInfo.value = {
+      count: data.count || 0,
+      max: data.max || 300,
+      oldestAt: data.oldestAt || null,
+      newestAt: data.newestAt || null,
+    }
+    cacheStatus.value = 'ready'
+  } catch (err) {
+    cacheUnavailableReason.value = err.message || 'Service Worker 不可用'
+    cacheStatus.value = 'unavailable'
+  }
+}
+
+// 图标缓存：清空缓存
+const handleClearCache = async () => {
+  cacheClearing.value = true
+  try {
+    await clearIconCache()
+    cacheInfo.value = {
+      count: 0,
+      max: cacheInfo.value.max,
+      oldestAt: null,
+      newestAt: null,
+    }
+    showDialog(
+      'success',
+      '🎉 图标缓存已清空',
+      '所有本地缓存的网站图标已被删除',
+      [
+        '• 下次访问时图标会重新从源站加载',
+        '• 此操作不会影响您的网站数据'
+      ]
+    )
+  } catch (err) {
+    showDialog(
+      'error',
+      '❌ 清空失败',
+      err.message || '清空图标缓存过程中发生错误',
+      []
+    )
+  } finally {
+    cacheClearing.value = false
+  }
+}
+
 // 组件挂载时执行
 onMounted(() => {
   checkEnvConfig()
   getSystemInfo()
   testConnection()
   loadWebsiteSettings()
+  refreshCacheInfo()
 })
 </script>
 
@@ -1269,6 +1371,78 @@ onMounted(() => {
 
   .logo-upload-controls {
     align-items: center;
+  }
+}
+
+/* 图标缓存 */
+.icon-cache {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cache-info {
+  flex: 1;
+  min-width: 220px;
+}
+
+.cache-info .cache-line {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.cache-info .cache-line strong {
+  margin-right: 4px;
+}
+
+.cache-loading {
+  color: #7f8c8d;
+}
+
+.cache-unavailable {
+  color: #e67e22;
+}
+
+.cache-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.clear-cache-btn {
+  padding: 8px 16px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.clear-cache-btn:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.clear-cache-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .icon-cache {
+    flex-direction: column;
+  }
+  .cache-actions {
+    width: 100%;
   }
 }
 </style>
