@@ -1425,6 +1425,25 @@ onUnmounted(() => {
   padding: 30px;
   padding-bottom: 400px;
   overflow-y: auto;
+  /* Firefox 滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
+}
+
+/* 主内容区滚动条 —— 与左侧 .category-nav 同一套配色，更柔和细腻 */
+.content-area::-webkit-scrollbar {
+  width: 8px;
+}
+.content-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.content-area::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.12);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.24);
 }
 
 .loading, .error {
@@ -2227,6 +2246,14 @@ onUnmounted(() => {
 
 .dark .content-area {
   background: #0d1117;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.dark .content-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+.dark .content-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .dark .site-card {
