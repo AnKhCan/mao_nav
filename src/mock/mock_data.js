@@ -95,14 +95,14 @@ export const mockData = {
       "sites": [
         {
           "id": "site-1779173914734",
-          "name": "MP",
+          "name": "MoviePilot",
           "url": "http://tinydrive.cn:13000/",
           "description": "",
           "icon": "https://vip.123pan.cn/1779195/yk6baz03t0n000ddwvompd0mzzgc0qmfDIU0BIe2AGxvBdQ=.png"
         },
         {
           "id": "site-1779174002144",
-          "name": "EMBY",
+          "name": "Emby",
           "url": "http://tinydrive.cn:8096/",
           "description": "",
           "icon": "https://vip.123pan.cn/1779195/yk6baz03t0l000ddwvobo8oucbg70whoDIU0BIe2AGxvBdQ=.png"
