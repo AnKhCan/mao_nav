@@ -55,6 +55,13 @@ export const mockData = {
           "url": "https://www.hexhub.cn/",
           "description": "全功能 SSH 客户端",
           "icon": "https://www.hexhub.cn/imgs/logo.png"
+        },
+        {
+          "id": "site-1780544341922",
+          "name": "UGit",
+          "url": "https://ugit.qq.com/zh/",
+          "description": "腾讯UGit",
+          "icon": "https://www.faviconextractor.com/favicon/ugit.qq.com"
         }
       ]
     },
