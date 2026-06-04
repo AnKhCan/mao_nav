@@ -60,7 +60,7 @@ export const mockData = {
           "id": "site-1780544341922",
           "name": "UGit",
           "url": "https://ugit.qq.com/zh/",
-          "description": "腾讯UGit",
+          "description": "腾讯 UGit",
           "icon": "https://www.faviconextractor.com/favicon/ugit.qq.com"
         }
       ]
