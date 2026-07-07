@@ -33,6 +33,13 @@ export const mockData = {
           "url": "https://hvoy.ai/",
           "description": "挑选靠谱的中转站",
           "icon": "https://www.faviconextractor.com/favicon/hvoy.ai"
+        },
+        {
+          "id": "site-1783389914666",
+          "name": "倍率计算",
+          "url": "https://token.baobu.xyz/",
+          "description": "模型价格对比工具🔧",
+          "icon": ""
         }
       ]
     },
