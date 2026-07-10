@@ -28,18 +28,18 @@ export const mockData = {
           "icon": "https://www.faviconextractor.com/favicon/rikka-ai.com"
         },
         {
-          "id": "site-1779421369210",
-          "name": "Hvoy",
-          "url": "https://hvoy.ai/",
-          "description": "挑选靠谱的中转站",
-          "icon": "https://www.faviconextractor.com/favicon/hvoy.ai"
-        },
-        {
           "id": "site-1783389914666",
           "name": "倍率计算",
           "url": "https://token.baobu.xyz/",
-          "description": "模型价格对比工具🔧",
+          "description": "模型价格对比工具",
           "icon": ""
+        },
+        {
+          "id": "site-1783654641133",
+          "name": "模型检测",
+          "url": "https://bazaarlink.ai/probe?runId=79d6d470-7fcc-4432-93ab-bc03b220b53b",
+          "description": "",
+          "icon": "https://www.faviconextractor.com/favicon/bazaarlink.ai"
         }
       ]
     },
